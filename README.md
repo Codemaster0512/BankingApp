@@ -86,7 +86,9 @@ AUTHOR TEAM
 ----------------------------------------
 
 SHUBHAM PATEL
+
 KRUSHANGI PATEL
+
 JEEL PRAJAPATI
 
 Course: AIML 4 SEM
