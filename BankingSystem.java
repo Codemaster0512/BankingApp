@@ -6,16 +6,25 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
+import java.util.HashMap;
+
 public class BankingSystem extends Application {
 
-    double balance = 1000;
+    // Store password for each user
+    HashMap<String, String> accounts = new HashMap<>();
 
-    // Default Login
-    String savedUsername = "admin";
-    String savedPassword = "1234";
+    // Store separate balance for each user
+    HashMap<String, Double> balances = new HashMap<>();
+
+    // Current logged in user
+    String currentUser = "";
 
     @Override
     public void start(Stage stage) {
+
+        // Default admin account
+        accounts.put("admin", "1234");
+        balances.put("admin", 5000.0);
 
         // ================= LOGIN PAGE =================
 
@@ -64,6 +73,10 @@ public class BankingSystem extends Application {
         newPass.setPromptText("New Password");
         newPass.setMaxWidth(250);
 
+        TextField openingBalance = new TextField();
+        openingBalance.setPromptText("Opening Balance");
+        openingBalance.setMaxWidth(250);
+
         Button registerBtn = new Button("Register");
         registerBtn.setMinWidth(220);
 
@@ -73,7 +86,7 @@ public class BankingSystem extends Application {
         Label createMsg = new Label();
 
         VBox createRoot = new VBox(18, createTitle, newUser, newPass,
-                registerBtn, backBtn, createMsg);
+                openingBalance, registerBtn, backBtn, createMsg);
 
         createRoot.setAlignment(Pos.CENTER);
         createRoot.setStyle(
@@ -81,7 +94,7 @@ public class BankingSystem extends Application {
                 "-fx-padding:30px;"
         );
 
-        Scene createScene = new Scene(createRoot, 450, 550);
+        Scene createScene = new Scene(createRoot, 450, 600);
 
         // ================= DASHBOARD =================
 
@@ -89,7 +102,10 @@ public class BankingSystem extends Application {
         dashTitle.setFont(new Font("Arial", 26));
         dashTitle.setStyle("-fx-text-fill:white; -fx-font-weight:bold;");
 
-        Label balanceLabel = new Label("Current Balance: ₹" + balance);
+        Label welcome = new Label();
+        welcome.setStyle("-fx-text-fill:yellow; -fx-font-size:18px;");
+
+        Label balanceLabel = new Label();
         balanceLabel.setFont(new Font("Arial", 22));
         balanceLabel.setStyle("-fx-text-fill:#00ff99;");
 
@@ -108,8 +124,8 @@ public class BankingSystem extends Application {
 
         Label msg = new Label();
 
-        VBox dashRoot = new VBox(18, dashTitle, balanceLabel, amountField,
-                depositBtn, withdrawBtn, logoutBtn, msg);
+        VBox dashRoot = new VBox(18, dashTitle, welcome, balanceLabel,
+                amountField, depositBtn, withdrawBtn, logoutBtn, msg);
 
         dashRoot.setAlignment(Pos.CENTER);
         dashRoot.setStyle(
@@ -117,14 +133,23 @@ public class BankingSystem extends Application {
                 "-fx-padding:30px;"
         );
 
-        Scene dashboardScene = new Scene(dashRoot, 500, 600);
+        Scene dashboardScene = new Scene(dashRoot, 500, 650);
 
-        // ================= LOGIN ACTION =================
+        // ================= LOGIN =================
 
         loginBtn.setOnAction(e -> {
 
-            if (username.getText().equals(savedUsername)
-                    && password.getText().equals(savedPassword)) {
+            String user = username.getText();
+            String pass = password.getText();
+
+            if (accounts.containsKey(user) &&
+                    accounts.get(user).equals(pass)) {
+
+                currentUser = user;
+
+                welcome.setText("Welcome " + currentUser);
+                balanceLabel.setText("Current Balance: ₹" +
+                        balances.get(currentUser));
 
                 loginMsg.setText("");
                 stage.setScene(dashboardScene);
@@ -135,34 +160,50 @@ public class BankingSystem extends Application {
             }
         });
 
-        // ================= GO TO CREATE PAGE =================
+        // ================= GO CREATE ACCOUNT =================
 
         createBtn.setOnAction(e -> stage.setScene(createScene));
 
-        // ================= REGISTER ACTION =================
+        // ================= REGISTER =================
 
         registerBtn.setOnAction(e -> {
 
-            if (newUser.getText().isEmpty() || newPass.getText().isEmpty()) {
+            try {
+                String user = newUser.getText();
+                String pass = newPass.getText();
+                double amount = Double.parseDouble(openingBalance.getText());
 
-                createMsg.setText("⚠ Fill all fields");
-                createMsg.setStyle("-fx-text-fill:yellow;");
+                if (user.isEmpty() || pass.isEmpty()) {
 
-            } else {
+                    createMsg.setText("⚠ Fill all fields");
 
-                savedUsername = newUser.getText();
-                savedPassword = newPass.getText();
+                } else if (accounts.containsKey(user)) {
 
-                createMsg.setText("✅ Account Created Successfully");
-                createMsg.setStyle("-fx-text-fill:#00ff99;");
+                    createMsg.setText("❌ Username already exists");
+
+                } else if (amount < 0) {
+
+                    createMsg.setText("⚠ Invalid Balance");
+
+                } else {
+
+                    accounts.put(user, pass);
+                    balances.put(user, amount);
+
+                    createMsg.setText("✅ Account Created Successfully");
+                }
+
+            } catch (Exception ex) {
+                createMsg.setText("❌ Invalid Input");
             }
         });
 
-        // ================= BACK TO LOGIN =================
+        // ================= BACK =================
 
         backBtn.setOnAction(e -> {
             newUser.clear();
             newPass.clear();
+            openingBalance.clear();
             createMsg.setText("");
             stage.setScene(loginScene);
         });
@@ -170,14 +211,19 @@ public class BankingSystem extends Application {
         // ================= DEPOSIT =================
 
         depositBtn.setOnAction(e -> {
+
             try {
                 double amount = Double.parseDouble(amountField.getText());
 
                 if (amount <= 0) {
                     msg.setText("⚠ Enter valid amount");
                 } else {
-                    balance += amount;
-                    balanceLabel.setText("Current Balance: ₹" + balance);
+
+                    double bal = balances.get(currentUser);
+                    bal += amount;
+                    balances.put(currentUser, bal);
+
+                    balanceLabel.setText("Current Balance: ₹" + bal);
                     msg.setText("✅ Deposit Successful");
                 }
 
@@ -189,16 +235,24 @@ public class BankingSystem extends Application {
         // ================= WITHDRAW =================
 
         withdrawBtn.setOnAction(e -> {
+
             try {
                 double amount = Double.parseDouble(amountField.getText());
 
-                if (amount > balance) {
-                    msg.setText("❌ Insufficient Balance");
-                } else if (amount <= 0) {
+                double bal = balances.get(currentUser);
+
+                if (amount <= 0) {
                     msg.setText("⚠ Enter valid amount");
+
+                } else if (amount > bal) {
+                    msg.setText("❌ Insufficient Balance");
+
                 } else {
-                    balance -= amount;
-                    balanceLabel.setText("Current Balance: ₹" + balance);
+
+                    bal -= amount;
+                    balances.put(currentUser, bal);
+
+                    balanceLabel.setText("Current Balance: ₹" + bal);
                     msg.setText("✅ Withdrawal Successful");
                 }
 
@@ -212,6 +266,7 @@ public class BankingSystem extends Application {
         logoutBtn.setOnAction(e -> {
             username.clear();
             password.clear();
+            amountField.clear();
             msg.setText("");
             stage.setScene(loginScene);
         });
