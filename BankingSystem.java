@@ -29,16 +29,12 @@ public class BankingSystem extends Application {
         Label roll1 = new Label("🎓 Enrollment No: 240280152055");
         Label name2 = new Label("👤 Name: KRUSHANGI PATEL");
         Label roll2 = new Label("🎓 Enrollment No: 240280152033");
-        Label name3 = new Label("👤 Name: JEEL PRAJAPATI");
-        Label roll3 = new Label("🎓 Enrollment No: 240280152059");
         Label course = new Label("📘 Course: AIML 4 SEM");
 
         name1.setStyle(infoStyle());
         roll1.setStyle(infoStyle());
         name2.setStyle(infoStyle());
         roll2.setStyle(infoStyle());
-        name3.setStyle(infoStyle());
-        roll3.setStyle(infoStyle());
         course.setStyle(infoStyle());
 
         Button nextBtn = createButton("➡ Enter System", "#10b981");
@@ -46,7 +42,7 @@ public class BankingSystem extends Application {
 
         VBox card1 = createCard();
         card1.getChildren().addAll(title1, subtitle, name1, roll1, name2, roll2,
-                name3, roll3, course, nextBtn, closeBtn);
+                course, nextBtn, closeBtn);
 
         VBox root1 = new VBox(card1);
         root1.setAlignment(Pos.CENTER);
