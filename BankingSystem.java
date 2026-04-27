@@ -3,6 +3,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
@@ -14,9 +15,8 @@ public class BankingSystem extends Application {
     @Override
     public void start(Stage stage) {
 
-        // ==================================================
         // PAGE 1 : WELCOME PAGE
-        // ==================================================
+
 
         Label title1 = new Label("🏦 Smart Banking App");
         title1.setFont(new Font("Verdana", 32));
@@ -25,19 +25,28 @@ public class BankingSystem extends Application {
         Label subtitle = new Label("Secure • Fast • Easy Banking");
         subtitle.setStyle("-fx-text-fill:#d1d5db; -fx-font-size:17px;");
 
-        Label name = new Label("👤 Name: Your Name");
-        Label roll = new Label("🎓 Roll No: 12345");
-        Label course = new Label("📘 Course: BCA / MCA / CS");
+        Label name1 = new Label("👤 Name: SHUBHAM PATEL");
+        Label roll1 = new Label("🎓 Enrollment No: 240280152055");
+        Label name2 = new Label("👤 Name: KRUSHANGI PATEL");
+        Label roll2 = new Label("🎓 Enrollment No: 240280152033");
+        Label name3 = new Label("👤 Name: JEEL PRAJAPATI");
+        Label roll3 = new Label("🎓 Enrollment No: 240280152059");
+        Label course = new Label("📘 Course: AIML 4 SEM");
 
-        name.setStyle(infoStyle());
-        roll.setStyle(infoStyle());
+        name1.setStyle(infoStyle());
+        roll1.setStyle(infoStyle());
+        name2.setStyle(infoStyle());
+        roll2.setStyle(infoStyle());
+        name3.setStyle(infoStyle());
+        roll3.setStyle(infoStyle());
         course.setStyle(infoStyle());
 
         Button nextBtn = createButton("➡ Enter System", "#10b981");
         Button closeBtn = createButton("❌ Close App", "#ef4444");
 
         VBox card1 = createCard();
-        card1.getChildren().addAll(title1, subtitle, name, roll, course, nextBtn, closeBtn);
+        card1.getChildren().addAll(title1, subtitle, name1, roll1, name2, roll2,
+                name3, roll3, course, nextBtn, closeBtn);
 
         VBox root1 = new VBox(card1);
         root1.setAlignment(Pos.CENTER);
@@ -45,9 +54,7 @@ public class BankingSystem extends Application {
 
         Scene firstScene = new Scene(root1, 600, 700);
 
-        // ==================================================
         // PAGE 2 : LOGIN PAGE
-        // ==================================================
 
         Label loginTitle = new Label("🔐 User Login");
         loginTitle.setFont(new Font("Verdana", 30));
@@ -69,7 +76,8 @@ public class BankingSystem extends Application {
         Label loginMsg = new Label();
 
         VBox card2 = createCard();
-        card2.getChildren().addAll(loginTitle, loginSub, username, password, loginBtn, backBtn, loginMsg);
+        card2.getChildren().addAll(loginTitle, loginSub, username, password,
+                loginBtn, backBtn, loginMsg);
 
         VBox root2 = new VBox(card2);
         root2.setAlignment(Pos.CENTER);
@@ -77,9 +85,7 @@ public class BankingSystem extends Application {
 
         Scene loginScene = new Scene(root2, 600, 700);
 
-        // ==================================================
         // PAGE 3 : DASHBOARD
-        // ==================================================
 
         Label title3 = new Label("💳 Banking Dashboard");
         title3.setFont(new Font("Verdana", 28));
@@ -108,18 +114,15 @@ public class BankingSystem extends Application {
 
         Scene dashboardScene = new Scene(root3, 600, 720);
 
-        // ==================================================
-        // ACTIONS
-        // ==================================================
+        // BUTTON ACTIONS
 
         nextBtn.setOnAction(e -> stage.setScene(loginScene));
 
         closeBtn.setOnAction(e -> stage.close());
 
         loginBtn.setOnAction(e -> {
-
-            if (username.getText().equals("admin") &&
-                password.getText().equals("1234")) {
+            if (username.getText().equals("shubh") &&
+                    password.getText().equals("1310")) {
 
                 username.clear();
                 password.clear();
@@ -190,18 +193,68 @@ public class BankingSystem extends Application {
             stage.setScene(firstScene);
         });
 
-        // ==================================================
-        // SHOW
-        // ==================================================
+        // KEYBOARD EVENTS
+
+        // Page 1 -> Enter = Login
+        firstScene.setOnKeyPressed(e -> {
+            if (e.getCode() == KeyCode.ENTER) {
+                stage.setScene(loginScene);
+            }
+        });
+
+        // Login Page
+        loginScene.setOnKeyPressed(e -> {
+
+            // ESC = Back
+            if (e.getCode() == KeyCode.ESCAPE) {
+                username.clear();
+                password.clear();
+                loginMsg.setText("");
+                stage.setScene(firstScene);
+            }
+
+            // ENTER = Login
+            if (e.getCode() == KeyCode.ENTER) {
+
+                if (username.getText().equals("shubh") &&
+                        password.getText().equals("1310")) {
+
+                    username.clear();
+                    password.clear();
+                    loginMsg.setText("");
+                    stage.setScene(dashboardScene);
+
+                } else {
+                    loginMsg.setText("❌ Invalid Username or Password");
+                    loginMsg.setStyle("-fx-text-fill:#f87171;");
+                }
+            }
+        });
+
+        // Dashboard Page
+        dashboardScene.setOnKeyPressed(e -> {
+
+            // ESC = Back to Login
+            if (e.getCode() == KeyCode.ESCAPE) {
+                amountField.clear();
+                msg.setText("");
+                stage.setScene(loginScene);
+            }
+
+            // ENTER = Deposit
+            if (e.getCode() == KeyCode.ENTER) {
+                depositBtn.fire();
+            }
+        });
+
+        // SHOW WINDOW
 
         stage.setTitle("Smart Banking System");
         stage.setScene(firstScene);
         stage.show();
     }
 
-    // ==================================================
     // BACKGROUNDS
-    // ==================================================
 
     public String bg1() {
         return "-fx-background-color: linear-gradient(to bottom right, #0f172a, #1e3a8a, #0f172a);";
@@ -215,9 +268,7 @@ public class BankingSystem extends Application {
         return "-fx-background-color: linear-gradient(to bottom right, #1f2937, #4c1d95, #111827);";
     }
 
-    // ==================================================
     // CARD STYLE
-    // ==================================================
 
     public VBox createCard() {
         VBox box = new VBox(18);
@@ -225,32 +276,28 @@ public class BankingSystem extends Application {
         box.setPadding(new Insets(35));
         box.setMaxWidth(420);
         box.setStyle(
-            "-fx-background-color: rgba(255,255,255,0.10);" +
-            "-fx-background-radius:25px;" +
-            "-fx-border-color: rgba(255,255,255,0.18);" +
-            "-fx-border-radius:25px;" +
-            "-fx-border-width:1.5px;"
+                "-fx-background-color: rgba(255,255,255,0.10);" +
+                        "-fx-background-radius:25px;" +
+                        "-fx-border-color: rgba(255,255,255,0.18);" +
+                        "-fx-border-radius:25px;" +
+                        "-fx-border-width:1.5px;"
         );
         return box;
     }
 
-    // ==================================================
     // TEXT STYLE
-    // ==================================================
 
     public String infoStyle() {
         return "-fx-text-fill:#fbbf24; -fx-font-size:18px; -fx-font-weight:bold;";
     }
 
-    // ==================================================
     // FIELD STYLE
-    // ==================================================
 
     public String fieldStyle() {
         return "-fx-font-size:16px;" +
-               "-fx-background-radius:16px;" +
-               "-fx-padding:12px;" +
-               "-fx-background-color:white;";
+                "-fx-background-radius:16px;" +
+                "-fx-padding:12px;" +
+                "-fx-background-color:white;";
     }
 
     public TextField createField(String text) {
@@ -261,21 +308,19 @@ public class BankingSystem extends Application {
         return field;
     }
 
-    // ==================================================
     // BUTTON STYLE
-    // ==================================================
 
     public Button createButton(String text, String color) {
         Button btn = new Button(text);
         btn.setMinWidth(250);
         btn.setMinHeight(48);
         btn.setStyle(
-            "-fx-background-color:" + color + ";" +
-            "-fx-text-fill:white;" +
-            "-fx-font-size:16px;" +
-            "-fx-font-weight:bold;" +
-            "-fx-background-radius:18px;" +
-            "-fx-cursor:hand;"
+                "-fx-background-color:" + color + ";" +
+                        "-fx-text-fill:white;" +
+                        "-fx-font-size:16px;" +
+                        "-fx-font-weight:bold;" +
+                        "-fx-background-radius:18px;" +
+                        "-fx-cursor:hand;"
         );
         return btn;
     }
